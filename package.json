@@ -1,0 +1,21 @@
+{
+  "name": "koya-booking-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Clinic booking API + web page for the Koya Cohort 4 assessment (Task 1).",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env src/server.js",
+    "start": "node src/server.js",
+    "test": "node test/e2e.mjs"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.2.17"
+  }
+}

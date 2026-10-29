@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Koya Clinic — Book an appointment</title>
+<meta name="description" content="See open clinic slots, book one, and manage your appointment.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand__mark" aria-hidden="true">+</span>
+    <span class="brand__name">Koya Clinic</span>
+    <span class="brand__sub">Appointments</span>
+  </div>
+  <a class="topbar__link" href="#your-bookings">Your bookings</a>
+</header>
+
+<main class="shell">
+  <section class="intro">
+    <h1>Book an appointment</h1>
+    <p>Pick an open slot, confirm your details, and you are in. Slots are held the moment you book them — no double bookings.</p>
+  </section>
+
+  <div class="layout">
+    <section class="card slots" aria-labelledby="slots-title">
+      <div class="card__head">
+        <h2 id="slots-title">Open slots</h2>
+        <div class="providers" id="providers" role="group" aria-label="Filter by provider"></div>
+      </div>
+      <div class="scroll" id="slots-scroll">
+        <div id="slot-list" class="slot-list" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <aside class="card panel" id="panel" aria-live="polite">
+      <div class="panel__empty" id="panel-empty">
+        <div class="ghost-calendar" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <h2>Choose a slot</h2>
+        <p>Pick a time on the left and your booking form appears here.</p>
+      </div>
+
+      <form class="panel__form" id="panel-form" hidden>
+        <p class="eyebrow">New booking</p>
+        <div class="slot-summary" id="slot-summary"></div>
+
+        <label class="field">
+          <span>Full name</span>
+          <input id="name" name="name" type="text" autocomplete="name" placeholder="Ada Obi" required>
+        </label>
+
+        <label class="field">
+          <span>Email</span>
+          <input id="email" name="email" type="email" autocomplete="email" placeholder="ada@example.com" required>
+        </label>
+
+        <p class="form-error" id="form-error" role="alert" hidden></p>
+
+        <button class="btn btn--primary" id="book-btn" type="submit">Confirm booking</button>
+        <button class="btn btn--quiet" id="form-cancel" type="button">Pick a different slot</button>
+      </form>
+
+      <div class="panel__done" id="panel-done" hidden>
+        <div class="tick" aria-hidden="true"></div>
+        <h2>Booking confirmed</h2>
+        <p id="done-lead">Your slot is reserved.</p>
+        <dl class="receipt" id="done-receipt"></dl>
+        <div class="done-actions">
+          <button class="btn btn--primary" id="done-bookings" type="button">See my bookings</button>
+          <button class="btn btn--quiet" id="done-again" type="button">Book another slot</button>
+        </div>
+      </div>
+
+      <div class="panel__state" id="panel-state" hidden>
+        <h2 id="state-title">Something went wrong</h2>
+        <p id="state-body"></p>
+        <button class="btn btn--quiet" id="state-back" type="button">Back to slots</button>
+      </div>
+    </aside>
+  </div>
+
+  <section class="card lookups" id="your-bookings" aria-labelledby="lookup-title">
+    <div class="card__head">
+      <h2 id="lookup-title">Your bookings</h2>
+      <form class="lookup" id="lookup-form">
+        <label class="sr-only" for="lookup-email">Email used to book</label>
+        <input id="lookup-email" type="email" placeholder="you@example.com" autocomplete="email" required>
+        <button class="btn btn--quiet" type="submit">Find bookings</button>
+      </form>
+    </div>
+    <div id="booking-list" class="booking-list"></div>
+    <div class="lookup__foot">
+      <p class="lookup__note" id="lookup-note"></p>
+      <button class="btn btn--quiet" id="load-more" type="button" hidden>Load more</button>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>Koya Clinic · appointments API demo</p>
+  <p class="foot__note">The assessment API key is embedded in this page so it works out of the box.</p>
+</footer>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
