@@ -2,18 +2,22 @@ import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 
 const PORT = Number(process.env.TEST_PORT || 3999);
-const KEY = 'test-key-123';
-const BASE = `http://127.0.0.1:${PORT}`;
+const KEY = process.env.TEST_KEY || 'test-key-123';
+// TEST_BASE runs the same suite against a deployed host instead of a local one.
+const EXTERNAL = process.env.TEST_BASE;
+const BASE = EXTERNAL || `http://127.0.0.1:${PORT}`;
 const DATA_DIR = '.data/test-pg';
 
-fs.rmSync(DATA_DIR, { recursive: true, force: true });
-
-const server = spawn(process.execPath, ['src/server.js'], {
-  env: { ...process.env, PORT: String(PORT), API_KEY: KEY, PGLITE_DIR: DATA_DIR },
-  stdio: ['ignore', 'pipe', 'pipe'],
-});
-server.stdout.on('data', (chunk) => process.stdout.write(`  [server] ${chunk}`));
-server.stderr.on('data', (chunk) => process.stderr.write(`  [server] ${chunk}`));
+let server = null;
+if (!EXTERNAL) {
+  fs.rmSync(DATA_DIR, { recursive: true, force: true });
+  server = spawn(process.execPath, ['src/server.js'], {
+    env: { ...process.env, PORT: String(PORT), API_KEY: KEY, PGLITE_DIR: DATA_DIR },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  server.stdout.on('data', (chunk) => process.stdout.write(`  [server] ${chunk}`));
+  server.stderr.on('data', (chunk) => process.stderr.write(`  [server] ${chunk}`));
+}
 
 async function call(method, path, { body, key = KEY, headers = {} } = {}) {
   const res = await fetch(BASE + path, {
@@ -320,8 +324,10 @@ try {
   console.error('\nfatal:', err.message);
   code = 1;
 } finally {
-  server.kill();
-  await new Promise((r) => setTimeout(r, 300));
-  fs.rmSync(DATA_DIR, { recursive: true, force: true });
+  if (server) {
+    server.kill();
+    await new Promise((r) => setTimeout(r, 300));
+    fs.rmSync(DATA_DIR, { recursive: true, force: true });
+  }
 }
 process.exit(code);

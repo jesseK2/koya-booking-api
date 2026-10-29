@@ -8,14 +8,17 @@ async function readRaw(req) {
 }
 
 export default async function handler(req, res) {
-  const segments = req.query.path;
-  const path = '/' + (Array.isArray(segments) ? segments.join('/') : segments || '');
+  // Requested as /api/slots by a rewrite, or straight as /slots.
+  const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+  const path = url.pathname.replace(/^\/api(?=\/|$)/, '') || '/';
 
-  const search = new URLSearchParams();
-  for (const [key, value] of Object.entries(req.query)) {
-    if (key === 'path') continue;
-    if (Array.isArray(value)) for (const item of value) search.append(key, item);
-    else search.append(key, value);
+  const search = url.searchParams;
+  if ([...search.keys()].length === 0 && req.query) {
+    for (const [key, value] of Object.entries(req.query)) {
+      if (key === 'path') continue;
+      if (Array.isArray(value)) for (const item of value) search.append(key, item);
+      else if (value !== undefined && value !== null) search.append(key, String(value));
+    }
   }
 
   const out = await handle({

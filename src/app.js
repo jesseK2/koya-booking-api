@@ -395,7 +395,16 @@ const ROUTES = [
   { method: 'GET', pattern: /^\/bookings$/, handler: ({ search }) => listBookings(search) },
   { method: 'GET', pattern: /^\/bookings\/([^/]+)$/, handler: ({ params }) => getBooking(decodeURIComponent(params[0])) },
   { method: 'DELETE', pattern: /^\/bookings\/([^/]+)$/, handler: ({ params }) => cancelBooking(decodeURIComponent(params[0])) },
+  // Vercel rewrites /bookings/{id} here: this build only matches one path segment.
+  { method: 'GET', pattern: /^\/booking$/, handler: ({ search }) => getBooking(requireId(search)) },
+  { method: 'DELETE', pattern: /^\/booking$/, handler: ({ search }) => cancelBooking(requireId(search)) },
 ];
+
+function requireId(search) {
+  const id = search.get('id');
+  if (!id) fail(400, 'booking id is required');
+  return id;
+}
 
 export async function handle({ method, path, search, headers, raw }) {
   if (method === 'OPTIONS') {

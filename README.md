@@ -5,8 +5,9 @@ spec (`koyaacademy.com/assessment-api`). All five levels are implemented: listin
 API-key auth and validation, race-safe single booking per slot with cancellation, idempotent retries
 with cursor pagination, and per-email rate limiting.
 
-**API base URL:** _see the deployment section_
-**Web page:** _see the deployment section_
+**API base URL:** https://koya-booking.vercel.app
+**Web page:** https://koya-booking.vercel.app
+**API key:** `X-API-Key` value lives in `public/config.js` (it is the demo key the page uses).
 
 ## How it is built
 
@@ -109,6 +110,24 @@ auth, every validation case, started/unknown slots, a **20-request simultaneous 
 (exactly one `201`, nineteen `409`), cancel-and-rebook, idempotent replay and `422`, three-page
 cursor walk with no duplicates or gaps, `limit` bounds, `429` with a well-formed `Retry-After`, and
 `/reset` clearing state.
+
+## Deployment
+
+Vercel (one serverless function) + Neon Postgres, both on free plans. The database is provisioned
+through Vercel's Neon integration, which injects `DATABASE_URL` and the `POSTGRES_*` aliases into
+every environment; `API_KEY` is a separate project env var.
+
+Two things about this stack are worth knowing, because both broke the first deploy:
+
+1. With a `start` script in `package.json`, Vercel's zero-config picked the project up as a *Node
+   server*, ignored `api/`, and tried to run the whole repo as one function. `"framework": null` in
+   `vercel.json` (and no `start` script) keeps the plain `api/` + `public/` layout.
+2. This build only matches **one** path segment in `api/[...path].js`, so `/api/bookings/{id}` never
+   reached the function. `vercel.json` rewrites `/bookings/{id}` to `/api/booking?id=:id`, and the
+   router handles both shapes — `/bookings/{id}` when run locally, the query form in production.
+
+Deploy with `npx vercel deploy --prod`; the suite can be pointed at the live host with
+`TEST_BASE=https://koya-booking.vercel.app TEST_KEY=… npm test`.
 
 ## Notes
 
